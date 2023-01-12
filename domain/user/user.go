@@ -1,12 +1,15 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/schema"
+	"github.com/leminhviett/message-bus-prototype/infra/message_queue"
 )
 
 type DAO struct {
@@ -16,18 +19,13 @@ type DAO struct {
 	CreateTime uint64
 }
 
-type DTO struct {
-	Id         int64
-	CreateTime uint64
-}
-
 type Handler struct {
 	canal.DummyEventHandler
+	Producer     message_queue.SyncProducer
+	ConvertToDTO []func(*DAO) interface{}
 }
 
-func (u *Handler) RegisterDTOConversion() {
-	//Convert()
-}
+//todo: handler cosntructor
 
 func (u *Handler) String() string { return "user binlog handler" }
 
@@ -53,14 +51,33 @@ func (u *Handler) updateHandler(e *canal.RowsEvent) {
 	oldUser := &DAO{}
 	Unmarshal(oldUser, oldRow, e.Table.Columns)
 
-	fmt.Println(oldUser)
-
 	newRow := e.Rows[1]
 	newUser := &DAO{}
 	Unmarshal(newUser, newRow, e.Table.Columns)
 
-	fmt.Println(newUser)
-	fmt.Println("====")
+	u.updateHandlerSendMsg(oldUser, newUser)
+
+}
+
+func (u *Handler) updateHandlerSendMsg(oldUser, newUser *DAO) {
+	for _, f := range u.ConvertToDTO {
+		oldUserDTO := f(oldUser)
+		newUserDTO := f(newUser)
+
+		oldUserDTOB, _ := json.Marshal(oldUserDTO)
+		newUserDTOB, _ := json.Marshal(newUserDTO)
+
+		message := message_queue.Message{
+			TableName: "User",
+			Action:    canal.UpdateAction,
+			OldValue:  oldUserDTOB,
+			NewValue:  newUserDTOB,
+		}
+		messageData, _ := json.Marshal(message)
+
+		u.Producer.SendMsg(strconv.FormatInt(oldUser.Id, 10), messageData)
+	}
+
 }
 
 func Unmarshal(dest interface{}, rowSrc []interface{}, columns []schema.TableColumn) {
