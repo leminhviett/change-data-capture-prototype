@@ -21,6 +21,8 @@ func main() {
 func initUserHandler() *user.Handler {
 	kafkaConfig := sarama.NewConfig()
 	kafkaConfig.Producer.RequiredAcks = sarama.WaitForAll
+	kafkaConfig.Producer.Return.Successes = true
+	kafkaConfig.Producer.Retry.Max = 3
 
 	producer, err :=
 		message_queue.NewSyncProducer([]string{"localhost:9092"}, kafkaConfig, "user_tab")
