@@ -1,9 +1,8 @@
 # Message bus prototype
 
-
-## Main purpose
-- Each team can listen for data changes in the DB easily by consuming Kafka message
-- De-couple between physical database format & business data model
+## Main purposes
+- Different shared service teams can listen for data changes in the DB easily by consuming Kafka message
+- De-couple between physical database format & business data model. Each team only need to care about their business model & how to consume Kafka message
 
 ## Architecture
 
@@ -24,3 +23,4 @@ the Kafka consumer
 
 ## Future improvement
 - Use better serialization method instead of JSON, such as proto-buf
+- Use Kafka AsyncProducer instead of Sync one for better performance

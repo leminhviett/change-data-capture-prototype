@@ -1,4 +1,4 @@
-package canal
+package db_canal
 
 import (
 	"fmt"

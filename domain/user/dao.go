@@ -5,12 +5,13 @@ import (
 	"strconv"
 
 	"github.com/go-mysql-org/go-mysql/canal"
-	infra_canal "github.com/leminhviett/message-bus-prototype/infra/canal"
+	infra_canal "github.com/leminhviett/message-bus-prototype/infra/db_canal"
 	"github.com/leminhviett/message-bus-prototype/infra/message_queue"
 )
 
 var TABLE_NAME = "User"
 
+//DAO coupled with physical Database format
 type DAO struct {
 	Id         int64
 	Name       string

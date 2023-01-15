@@ -1,5 +1,6 @@
 package user
 
+//DTO business data model; different team can register different DTO format
 type DTO struct {
 	Id         int64
 	Status     uint32

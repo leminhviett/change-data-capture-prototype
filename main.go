@@ -3,19 +3,22 @@ package main
 import (
 	"github.com/Shopify/sarama"
 	"github.com/leminhviett/message-bus-prototype/domain/user"
-	infra_canal "github.com/leminhviett/message-bus-prototype/infra/canal"
+	infra_canal "github.com/leminhviett/message-bus-prototype/infra/db_canal"
 	"github.com/leminhviett/message-bus-prototype/infra/message_queue"
 )
 
 func main() {
 	canal, err := infra_canal.NewDefaultCanal("127.0.0.1:3306", "root", "my-secret-pw")
 	if err != nil {
-		panic("init default canal fail")
+		panic("init default db_canal fail")
 	}
 
 	userHandler := initUserHandler()
 	canal.SetEventHandler(userHandler)
-	canal.Run()
+	err = canal.Run()
+	if err != nil {
+		panic("default db_canal run fail")
+	}
 }
 
 func initUserHandler() *user.Handler {
