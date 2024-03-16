@@ -1,7 +1,7 @@
-# Message bus prototype
+# Change Data Capture (CDC) system prototype
 
 ## Main purposes
-- Different shared service teams can listen for data changes in the DB easily by consuming Kafka message
+- Different business teams can listen for data changes in the DB easily by consuming Kafka message
 - De-couple between physical database format & business data model. Each team only need to care about their business model & how to consume Kafka message
 
 ## Architecture
